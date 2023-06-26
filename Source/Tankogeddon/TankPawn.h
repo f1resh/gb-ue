@@ -43,6 +43,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float MoveSpeed = 100;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
+	float StrafeSpeed = 50;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float RotationSpeed = 100;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float InterpolationKey = 0.1f;
@@ -50,6 +52,7 @@ protected:
     float TurretRotationInterpolationKey = 0.5f;
 
 	float TargetForwardAxisValue;
+	float TargetMoveRightAxisValue;
 	float TargetRightAxisValue;
 	float CurrentRightAxisValue;
 
@@ -76,7 +79,11 @@ public:
 	UFUNCTION()
 	void MoveForward(float AxisValue);
 	UFUNCTION()
+	void MoveRight(float AxisValue);
+	UFUNCTION()
 	void RotateRight(float AxisValue);
+
+	void MoveTank(float DeltaTime);
 
 	UFUNCTION()
 	void Fire();
