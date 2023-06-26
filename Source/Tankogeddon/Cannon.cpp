@@ -87,9 +87,9 @@ void ACannon::Fire()
 		if(GetWorld()->LineTraceSingleByChannel(hitResult, start, end, ECollisionChannel::ECC_Visibility, traceParams))
 		{
 			DrawDebugLine(GetWorld(), start, hitResult.Location, FColor::Red, false, 0.5f, 0, 5);
-			if(hitResult.Actor.Get())
+			if(hitResult.GetActor())
 			{
-				hitResult.Actor.Get()->Destroy();
+				hitResult.GetActor()->Destroy();
 			}
 			// IDamageTaker * damageTakerActor = Cast<IDamageTaker>(hitResult.Actor);
 			// if(damageTakerActor)

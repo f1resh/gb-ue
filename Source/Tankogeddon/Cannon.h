@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameStructs.h"
 #include "Projectile.h"
-#include "Camera/CameraShake.h"
+#include "MatineeCameraShake.h"
 #include "Components/AudioComponent.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/ForceFeedbackEffect.h"
@@ -36,7 +36,7 @@ protected:
     UForceFeedbackEffect * ShootForceEffect;
     
     UPROPERTY(EditAnywhere)
-    TSubclassOf<UCameraShake> ShootShake;
+    TSubclassOf<UMatineeCameraShake> ShootShake;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
     float FireRate = 1;

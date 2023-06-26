@@ -144,10 +144,10 @@ bool ATankAIController::IsPlayerSeen()
     if(GetWorld()->LineTraceSingleByChannel(hitResult, eyesPos, playerPos, ECollisionChannel::ECC_Visibility, traceParams))
     {
        
-        if(hitResult.Actor.Get())
+        if(hitResult.GetActor())
         {
             //DrawDebugLine(GetWorld(), eyesPos, hitResult.Location, FColor::Cyan, false, 0.5f, 0, 10);
-            return hitResult.Actor.Get() == PlayerPawn;
+            return hitResult.GetActor() == PlayerPawn;
         }
     }
     //bugLine(GetWorld(), eyesPos, playerPos, FColor::Cyan, false, 0.5f, 0, 10);
