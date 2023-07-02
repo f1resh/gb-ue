@@ -100,6 +100,13 @@ void ATankPawn::Fire()
 	}
 }
 
+void ATankPawn::FireSpecial()
+{
+	if (Cannon) {
+		Cannon->FireSpecial();
+	}
+}
+
 
 // Called every frame
 void ATankPawn::Tick(float DeltaTime)

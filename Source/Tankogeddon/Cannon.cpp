@@ -32,9 +32,14 @@ ACannon::ACannon()
 
 void ACannon::Fire()
 {
-	if(!ReadyToFire)
+	if (RoundsNumber <= 0)
 	{
-		return;	
+		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, "Unable to fire projectile: Ammo depleted");
+		return;
+	}
+	if (!ReadyToFire)
+	{
+		return;
 	}
 	ReadyToFire = false;
 	
@@ -60,19 +65,8 @@ void ACannon::Fire()
 	
 	if(Type == ECannonType::FireProjectile)
 	{
-		GEngine->AddOnScreenDebugMessage(10, 1,FColor::Green, "Fire - projectile");
-		FTransform projectileTransform(ProjectileSpawnPoint->GetComponentRotation(), ProjectileSpawnPoint->GetComponentLocation(), FVector(1));
-		
-		//AProjectile* projectile = GetWorld()->SpawnActorDeferred<AProjectile>(ProjectileClass, projectileTransform, this);
-		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
-		if(projectile)
-		{
-			// ....
-			//projectile->FinishSpawning(projectileTransform);
-		
-			projectile->Start();		
-			
-		}
+		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, "Fire - projectile");
+		SpawnProjectile();
 	}
 	else
 	{
@@ -109,6 +103,52 @@ void ACannon::Fire()
 	}
 	
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ACannon::Reload, 1 / FireRate, false);
+	RoundsNumber--;
+	UE_LOG(LogTemp, Display, TEXT("Number of rounds: %d"), RoundsNumber);
+}
+
+void ACannon::FireSpecial()
+{
+	if (RoundsNumber <= 0)
+	{
+		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, "Unable to fire projectile: Ammo depleted");
+		return;
+	}
+	if (!ReadyToFire)
+	{
+		return;
+	}
+
+	ReadyToFire = false;
+
+	ShootEffect->ActivateSystem();
+	AudioEffect->Play();
+
+	if (GetOwner() && GetOwner() == GetWorld()->GetFirstPlayerController()->GetPawn())
+	{
+		if (ShootForceEffect)
+		{
+			FForceFeedbackParameters shootForceEffectParams;
+			shootForceEffectParams.bLooping = false;
+			shootForceEffectParams.Tag = "shootForceEffectParams";
+			GetWorld()->GetFirstPlayerController()->ClientPlayForceFeedback(ShootForceEffect, shootForceEffectParams);
+		}
+
+		if (ShootShake)
+		{
+			//GetWorld()->GetFirstPlayerController()->PlayerCameraManager->PlayCameraShake(ShootShake, 1.0f);
+			GetWorld()->GetFirstPlayerController()->ClientPlayCameraShake(ShootShake);
+		}
+	}
+
+	if (Type == ECannonType::FireProjectile)
+	{
+		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, "Fire burst - projectile");
+		SpawnBurst();
+	}
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ACannon::Reload, 1 / FireRate, false);
+	RoundsNumber--;
+	UE_LOG(LogTemp, Display, TEXT("Number of rounds: %d"), RoundsNumber);
 }
 
 bool ACannon::IsReadyToFire()
@@ -119,6 +159,32 @@ bool ACannon::IsReadyToFire()
 void ACannon::Reload()
 {
 	ReadyToFire = true;
+}
+
+void ACannon::SpawnProjectile()
+{
+	FTransform projectileTransform(ProjectileSpawnPoint->GetComponentRotation(), ProjectileSpawnPoint->GetComponentLocation(), FVector(1));
+
+	//AProjectile* projectile = GetWorld()->SpawnActorDeferred<AProjectile>(ProjectileClass, projectileTransform, this);
+	AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
+	if (projectile)
+	{
+		// ....
+		//projectile->FinishSpawning(projectileTransform);
+
+		projectile->Start();
+	}
+}
+
+void ACannon::SpawnBurst() {
+	if (burstCount < BurstFireNumber) {
+		SpawnProjectile();
+		burstCount++;
+		GetWorld()->GetTimerManager().SetTimer(BurstTimerHandle, this, &ACannon::SpawnBurst, 1 / BurstFireRate, false);
+	}
+	else {
+		burstCount = 0;
+	}
 }
 
 // Called when the game starts or when spawned
