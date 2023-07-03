@@ -35,5 +35,6 @@ protected:
 	void RotateRight(float AxisValue);
 	void RotateTurretRight(float AxisValue);
 	void Fire();
+	void FireSpecial();
 
 };

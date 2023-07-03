@@ -40,6 +40,13 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
     float FireRate = 1;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+	float BurstFireRate = 10;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+	float BurstFireNumber = 3;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+	int RoundsNumber = 20;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
     float FireRange = 1000;
@@ -52,6 +59,7 @@ protected:
     TSubclassOf<AProjectile> ProjectileClass;
 
 	FTimerHandle ReloadTimerHandle;
+	FTimerHandle BurstTimerHandle;
 
 	bool ReadyToFire = false;
 
@@ -59,6 +67,7 @@ public:
     ACannon();
 
 	void Fire();
+	void FireSpecial();
 
 	bool IsReadyToFire();
 	
@@ -66,5 +75,12 @@ protected:
     virtual void BeginPlay() override;
 
 	void Reload();	
+
+private:
+	void SpawnProjectile();
+	void SpawnBurst();
+
+	int burstCount = 0;
+
 
 };

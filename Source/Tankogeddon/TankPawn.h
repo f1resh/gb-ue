@@ -89,6 +89,10 @@ public:
 	void Fire();
 
 	UFUNCTION()
+	void FireSpecial();
+
+
+	UFUNCTION()
 	void TakeDamage(FDamageData DamageData);
 
 	UFUNCTION()
