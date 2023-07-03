@@ -73,9 +73,23 @@ void ATankPawn::MoveForward(float AxisValue)
 	TargetForwardAxisValue = AxisValue;
 }
 
+void ATankPawn::MoveRight(float AxisValue)
+{
+	TargetMoveRightAxisValue = AxisValue;
+}
+
 void ATankPawn::RotateRight(float AxisValue)
 {
 	TargetRightAxisValue = AxisValue;
+}
+
+void ATankPawn::MoveTank(float DeltaTime)
+{
+	FVector currentLocation = GetActorLocation();
+	FVector forwardVector = GetActorForwardVector();
+	FVector rightVector = GetActorRightVector();
+	FVector movePosition = currentLocation + (forwardVector * MoveSpeed * TargetForwardAxisValue + rightVector * StrafeSpeed * TargetMoveRightAxisValue) * DeltaTime;
+	SetActorLocation(movePosition, true);
 }
 
 void ATankPawn::SetupCannon()
@@ -114,10 +128,8 @@ void ATankPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// Tank movement
-	FVector currentLocation = GetActorLocation();
-	FVector forwardVector = GetActorForwardVector();
-	FVector movePosition = currentLocation + forwardVector * MoveSpeed * TargetForwardAxisValue * DeltaTime;
-	SetActorLocation(movePosition, true);
+	if (TargetForwardAxisValue != 0 || TargetMoveRightAxisValue!=0) MoveTank(DeltaTime);
+
 
 	// Tank rotation
 	CurrentRightAxisValue = FMath::Lerp(CurrentRightAxisValue, TargetRightAxisValue, InterpolationKey);
