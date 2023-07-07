@@ -70,7 +70,7 @@ protected:
 	ACannon* Cannon2;
 
 	TSubclassOf<ACannon>* CannonClassPtr;
-	ACannon* Cannon;
+	ACannon** Cannon;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Patrol points" , Meta = (MakeEditWidget = true))
