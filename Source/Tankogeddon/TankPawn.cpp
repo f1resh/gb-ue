@@ -60,12 +60,44 @@ void ATankPawn::BeginPlay()
 	Super::BeginPlay();
 	TankController = Cast<ATankPlayerController>(GetController());
 	//TankAIController = Cast<ATankAIController>(GetController());
-	SetupCannon();
+	InitCannons();
 	
 	if(!GetController())
 	{
 		SpawnDefaultController();
 	}
+}
+
+void ATankPawn::InitCannons()
+{
+	FActorSpawnParameters params;
+	params.Instigator = this;
+	params.Owner = this;
+	Cannon1 = GetWorld()->SpawnActor<ACannon>(CannonClass1, params);
+	Cannon1->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Cannon2 = GetWorld()->SpawnActor<ACannon>(CannonClass2, params);
+	Cannon2->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Cannon = Cannon1;
+}
+
+void ATankPawn::SetupCannon()
+{
+	if (Cannon)
+	{
+		Cannon->Destroy();
+	}
+
+	FActorSpawnParameters params;
+	params.Instigator = this;
+	params.Owner = this;
+	Cannon = GetWorld()->SpawnActor<ACannon>(*CannonClassPtr, params);
+	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+}
+
+void ATankPawn::SetupCannon(TSubclassOf<ACannon> NewCannonClass)
+{
+	*CannonClassPtr = NewCannonClass;
+	SetupCannon();
 }
 
 void ATankPawn::MoveForward(float AxisValue)
@@ -92,20 +124,6 @@ void ATankPawn::MoveTank(float DeltaTime)
 	SetActorLocation(movePosition, true);
 }
 
-void ATankPawn::SetupCannon()
-{
-	if(Cannon)
-	{
-		Cannon->Destroy();		
-	}
-
-	FActorSpawnParameters params;
-	params.Instigator = this;
-	params.Owner = this;
-	Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, params);
-	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-}
-
 void ATankPawn::Fire()
 {
 	if(Cannon)
@@ -119,6 +137,20 @@ void ATankPawn::FireSpecial()
 	if (Cannon) {
 		Cannon->FireSpecial();
 	}
+}
+
+void ATankPawn::SwitchCannon()
+{
+	if (Cannon == Cannon1) {
+		Cannon = Cannon2;
+		CannonClassPtr = &CannonClass1;
+	}
+	else {
+		Cannon = Cannon1;
+		CannonClassPtr = &CannonClass2;
+	}
+	FString name = Cannon->GetClass()->GetName();
+	UE_LOG(TankLog, Display, TEXT("Switch to cannon: %s"), *name);
 }
 
 
@@ -182,10 +214,9 @@ void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
-void ATankPawn::SetupCannon(TSubclassOf<ACannon> NewCannonClass)
+void ATankPawn::AddRoundToCurrentCannon(int number)
 {
-	CannonClass = NewCannonClass;
-	SetupCannon();
+	Cannon->AddRounds(number);
 }
 
 
@@ -207,7 +238,11 @@ TArray<FVector> ATankPawn::GetPatrollingPoints()
 
 void ATankPawn::Die()
 {
-	if(Cannon)
+	if(Cannon1)
+		Cannon1->Destroy();
+	if (Cannon2)
+		Cannon2->Destroy();
+	if (Cannon)
 		Cannon->Destroy();
 	
 	Destroy();

@@ -18,10 +18,14 @@ void ATankPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	InputComponent->BindAxis("MoveForward", this, &ATankPlayerController::MoveForward);
 	InputComponent->BindAxis("RotateRight", this, &ATankPlayerController::RotateRight);
+	InputComponent->BindAxis("MoveRight", this, &ATankPlayerController::MoveRight);
+	InputComponent->BindAxis("TurretRotationRight", this, &ATankPlayerController::RotateTurretRight);
+
 	InputComponent->BindAction("Fire", IE_Pressed, this, &ATankPlayerController::Fire);
 	InputComponent->BindAction("SecondaryFire", IE_Pressed, this, &ATankPlayerController::FireSpecial);
-	InputComponent->BindAxis("TurretRotationRight", this, &ATankPlayerController::RotateTurretRight);
-	InputComponent->BindAxis("MoveRight", this, &ATankPlayerController::MoveRight);
+	InputComponent->BindAction("SwitchCannon", IE_Pressed, this, &ATankPlayerController::SwitchCannon);
+	
+	
 	
 }
 
@@ -73,5 +77,10 @@ void ATankPlayerController::Fire()
 void ATankPlayerController::FireSpecial()
 {
 	TankPawn->FireSpecial();
+}
+
+void ATankPlayerController::SwitchCannon()
+{
+	TankPawn->SwitchCannon();
 }
 

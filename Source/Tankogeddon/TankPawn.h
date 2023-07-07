@@ -61,10 +61,17 @@ protected:
 	// UPROPERTY()
 	// ATankAIController* TankAIController;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
-	TSubclassOf<ACannon> CannonClass;
-	UPROPERTY()
-	ACannon * Cannon;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon1")
+		TSubclassOf<ACannon> CannonClass1;
+	ACannon* Cannon1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon2")
+		TSubclassOf<ACannon> CannonClass2;
+	ACannon* Cannon2;
+
+	TSubclassOf<ACannon>* CannonClassPtr;
+	ACannon* Cannon;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Patrol points" , Meta = (MakeEditWidget = true))
 	TArray<ATargetPoint*> PatrollingPoints;
@@ -87,9 +94,10 @@ public:
 
 	UFUNCTION()
 	void Fire();
-
 	UFUNCTION()
 	void FireSpecial();
+	UFUNCTION()
+	void SwitchCannon();
 
 
 	UFUNCTION()
@@ -112,6 +120,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void InitCannons();
 	void SetupCannon();
 
 	UFUNCTION()
@@ -129,5 +138,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void SetupCannon(TSubclassOf<ACannon> NewCannonClass);
+	void AddRoundToCurrentCannon(int);
 
 };
