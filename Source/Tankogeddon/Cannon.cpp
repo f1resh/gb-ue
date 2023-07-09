@@ -7,6 +7,8 @@
 #include "Components/ArrowComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "TimerManager.h"
+#include "DamageTaker.h"
+#include "GameStructs.h"
 #include "Engine/Engine.h"
 
 ACannon::ACannon()
@@ -81,20 +83,19 @@ void ACannon::Fire()
 		if(GetWorld()->LineTraceSingleByChannel(hitResult, start, end, ECollisionChannel::ECC_Visibility, traceParams))
 		{
 			DrawDebugLine(GetWorld(), start, hitResult.Location, FColor::Red, false, 0.5f, 0, 5);
-			if(hitResult.GetActor())
+			IDamageTaker* damageTakerActor = Cast<IDamageTaker>(hitResult.GetActor());
+			if (damageTakerActor)
 			{
+				FDamageData damageData;
+				damageData.DamageValue = FireDamage;
+				damageData.Instigator = this;
+				damageData.DamageMaker = this;
+
+				damageTakerActor->TakeDamage(damageData);
+			}
+			else {
 				hitResult.GetActor()->Destroy();
 			}
-			// IDamageTaker * damageTakerActor = Cast<IDamageTaker>(hitResult.Actor);
-			// if(damageTakerActor)
-			// {
-			// 	FDamageData damageData;
-			// 	damageData._damageValue = _fireDamage;
-			// 	damageData._instigator = this;
-			// 	damageData._damageMaker = this;
-			//
-			// 	damageTakerActor->TakeDamage(damageData);
-			// }
 		}
 		else
 		{
@@ -146,6 +147,39 @@ void ACannon::FireSpecial()
 	{
 		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, "Fire burst - projectile");
 		SpawnBurst();
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, "Fire - trace secondary");
+		FHitResult hitResult;
+		FCollisionQueryParams traceParams = FCollisionQueryParams(FName(TEXT("FireTrace")), true, this);
+		traceParams.bTraceComplex = true;
+		traceParams.bReturnPhysicalMaterial = false;
+
+		FVector start = ProjectileSpawnPoint->GetComponentLocation();
+		FVector end = ProjectileSpawnPoint->GetForwardVector() * FireRange * 2 + start;
+		if (GetWorld()->LineTraceSingleByChannel(hitResult, start, end, ECollisionChannel::ECC_Visibility, traceParams))
+		{
+			DrawDebugLine(GetWorld(), start, hitResult.Location, FColor::Green, false, 0.5f, 0, 5);
+
+			IDamageTaker* damageTakerActor = Cast<IDamageTaker>(hitResult.GetActor());
+			if (damageTakerActor)
+			{
+				FDamageData damageData;
+				damageData.DamageValue = FireDamage / 2;
+				damageData.Instigator = this;
+				damageData.DamageMaker = this;
+
+				damageTakerActor->TakeDamage(damageData);
+			}
+			else {
+				hitResult.GetActor()->Destroy();
+			}
+		}
+		else
+		{
+			DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 0.5f, 0, 5);
+		}
 	}
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ACannon::Reload, 1 / FireRate, false);
 	RoundsNumber--;
