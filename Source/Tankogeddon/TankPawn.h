@@ -79,6 +79,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Accurency")
     float MovementAccurency = 50;
 
+	int Points = 0;
+
 public:
 	// Sets default values for this pawn's properties
 	ATankPawn();
@@ -129,6 +131,7 @@ protected:
 	UFUNCTION()
     void DamageTaked(float DamageValue);
 
+	void AddScore(int);
 
 public:	
 	// Called every frame

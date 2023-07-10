@@ -2,6 +2,7 @@
 
 
 #include "HealthComponent.h"
+#include "Scorable.h"
 
 
 UHealthComponent::UHealthComponent()
@@ -17,6 +18,9 @@ void UHealthComponent::TakeDamage(FDamageData DamageData)
 
 	if(CurrentHealth <= 0)
 	{
+		//IScorable* scorable = Cast<IScorable>(DamageData.Instigator);
+		//if (scorable)
+		//	DamageData.Instigator
 		if(OnDie.IsBound())
 			OnDie.Broadcast();
 	}

@@ -134,6 +134,11 @@ void ATurret::TakeDamage(FDamageData DamageData)
 	//UE_LOG(LogTemp, Warning, TEXT("Turret %s taked damage:%f "), *GetName(), DamageData.DamageValue);
 }
 
+int ATurret::GivePoints()
+{
+	return Points;
+}
+
 void ATurret::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
@@ -149,6 +154,8 @@ void ATurret::PostInitializeComponents()
 
 void ATurret::Die()
 {
+	if (GetScoreOnDie.IsBound())
+		GetScoreOnDie.Broadcast(GivePoints());
 	Destroy();
 }
 

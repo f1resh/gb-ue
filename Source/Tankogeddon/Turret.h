@@ -8,13 +8,14 @@
 #include "GameFramework/Actor.h"
 #include "Cannon.h"
 #include "DamageTaker.h"
+#include "Scorable.h"
 #include "HealthComponent.h"
 
 
 #include "Turret.generated.h"
 
 UCLASS()
-class TANKOGEDDON_API ATurret : public AActor, public IDamageTaker
+class TANKOGEDDON_API ATurret : public AActor, public IDamageTaker, public IScorable
 {
 	GENERATED_BODY()
 protected:
@@ -46,6 +47,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
     float Accurency = 10;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score points")
+	int Points = 5;
+
 	const FString BodyMeshPath = "StaticMesh'/Game/CSC/Meshes/SM_CSC_Tower1.SM_CSC_Tower1'";
 	const FString TurretMeshPath = "StaticMesh'/Game/CSC/Meshes/SM_CSC_Gun1.SM_CSC_Gun1'";
 public:	
@@ -53,6 +57,9 @@ public:
 
 	UFUNCTION()
     void TakeDamage(FDamageData DamageData);
+
+	UFUNCTION()
+	int GivePoints();
 
 	virtual void PostInitializeComponents() override;
 protected:

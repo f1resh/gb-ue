@@ -212,7 +212,7 @@ void ACannon::SpawnProjectile()
 	{
 		// ....
 		//projectile->FinishSpawning(projectileTransform);
-
+		projectile->OnGetScore.AddUObject(this, &ACannon::SendScore);
 		projectile->Start();
 	}
 }
@@ -235,3 +235,8 @@ void ACannon::BeginPlay()
 	Reload();
 }
 
+void ACannon::SendScore(int score)
+{
+	if (OnGetScore.IsBound())
+		OnGetScore.Broadcast(score);
+}

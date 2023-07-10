@@ -75,8 +75,11 @@ void ATankPawn::InitCannons()
 	params.Owner = this;
 	Cannon1 = GetWorld()->SpawnActor<ACannon>(CannonClass1, params);
 	Cannon1->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Cannon1->OnGetScore.AddUObject(this, &ATankPawn::AddScore);
 	Cannon2 = GetWorld()->SpawnActor<ACannon>(CannonClass2, params);
 	Cannon2->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Cannon2->OnGetScore.AddUObject(this, &ATankPawn::AddScore);
+
 	Cannon = &Cannon1;
 	CannonClassPtr = &CannonClass1;
 }
@@ -93,6 +96,7 @@ void ATankPawn::SetupCannon()
 	params.Owner = this;
 	(*Cannon) = GetWorld()->SpawnActor<ACannon>(*CannonClassPtr, params);
 	(*Cannon)->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	(*Cannon)->OnGetScore.AddUObject(this, &ATankPawn::AddScore);
 }
 
 void ATankPawn::SetupCannon(TSubclassOf<ACannon> NewCannonClass)
@@ -252,4 +256,10 @@ void ATankPawn::Die()
 void ATankPawn::DamageTaked(float DamageValue)
 {
 	UE_LOG(TankLog, Warning, TEXT("Tank %s taked damage:%f Health:%f"), *GetName(), DamageValue, HealthComponent->GetHealth());
+}
+
+void ATankPawn::AddScore(int score)
+{
+	Points += score;
+	GEngine->AddOnScreenDebugMessage(10, 5, FColor::Red, FString::Printf(TEXT("Total score: %d"), Points));
 }
