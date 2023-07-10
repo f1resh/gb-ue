@@ -69,7 +69,10 @@ public:
 	void Fire();
 	void FireSpecial();
 
+	void AddRounds(int);
+
 	bool IsReadyToFire();
+
 	
 protected:
     virtual void BeginPlay() override;

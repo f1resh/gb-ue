@@ -104,7 +104,8 @@ void ACannon::Fire()
 	
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ACannon::Reload, 1 / FireRate, false);
 	RoundsNumber--;
-	UE_LOG(LogTemp, Display, TEXT("Number of rounds: %d"), RoundsNumber);
+	FString n = this->GetClass()->GetName();
+	UE_LOG(LogTemp, Display, TEXT("Number of rounds: %d. Cannon: %s"), RoundsNumber, *n);
 }
 
 void ACannon::FireSpecial()
@@ -148,6 +149,12 @@ void ACannon::FireSpecial()
 	}
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ACannon::Reload, 1 / FireRate, false);
 	RoundsNumber--;
+	UE_LOG(LogTemp, Display, TEXT("Number of rounds: %d"), RoundsNumber);
+}
+
+void ACannon::AddRounds(int number)
+{
+	if (number > 0) RoundsNumber += number;
 	UE_LOG(LogTemp, Display, TEXT("Number of rounds: %d"), RoundsNumber);
 }
 
