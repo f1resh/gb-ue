@@ -3,38 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ArrowComponent.h"
-#include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
-#include "Cannon.h"
-#include "DamageTaker.h"
+#include "BasePawn.h"
 #include "Scorable.h"
-#include "HealthComponent.h"
-
 
 #include "Turret.generated.h"
 
 UCLASS()
-class TANKOGEDDON_API ATurret : public AActor, public IDamageTaker, public IScorable
+class TANKOGEDDON_API ATurret : public ABasePawn, public IScorable
 {
 	GENERATED_BODY()
 protected:
-    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UStaticMeshComponent* BodyMesh;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UStaticMeshComponent* TurretMesh;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UArrowComponent * CannonSetupPoint;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UHealthComponent * HealthComponent;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UBoxComponent * HitCollider; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
     TSubclassOf<ACannon> CannonClass;
 
 	UPROPERTY()
-    ACannon* Cannon;
+    ACannon* CannonPtr;
 	UPROPERTY()
     APawn * PlayerPawn;
 
@@ -56,9 +41,6 @@ public:
     ATurret();
 
 	UFUNCTION()
-    void TakeDamage(FDamageData DamageData);
-
-	UFUNCTION()
 	int GivePoints();
 
 	virtual void PostInitializeComponents() override;
@@ -75,13 +57,9 @@ protected:
 
 	bool CanFire();
 
-	void Fire();
-
-	UFUNCTION()
-    void Die();
+    void Die() override;
  
-	UFUNCTION()
-    void DamageTaked(float DamageValue);
+    void DamageTaked(float DamageValue) override;
 
 
 };
