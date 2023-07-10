@@ -78,6 +78,7 @@ void ATankPawn::InitCannons()
 	Cannon2 = GetWorld()->SpawnActor<ACannon>(CannonClass2, params);
 	Cannon2->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	Cannon = &Cannon1;
+	CannonClassPtr = &CannonClass1;
 }
 
 void ATankPawn::SetupCannon()
@@ -143,11 +144,11 @@ void ATankPawn::SwitchCannon()
 {
 	if (Cannon == &Cannon1) {
 		Cannon = &Cannon2;
-		CannonClassPtr = &CannonClass1;
+		CannonClassPtr = &CannonClass2;
 	}
 	else if (Cannon == &Cannon2){
 		Cannon = &Cannon1;
-		CannonClassPtr = &CannonClass2;
+		CannonClassPtr = &CannonClass1;
 	}
 	FString name = (*Cannon)->GetClass()->GetName();
 	UE_LOG(TankLog, Display, TEXT("Switch to cannon: %s"), *name);
