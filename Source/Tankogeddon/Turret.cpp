@@ -25,6 +25,12 @@ ATurret::ATurret()
 	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
 	HitCollider->SetupAttachment(BodyMesh);
 
+	DeathVisualEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Death effect"));
+	DeathVisualEffect->SetupAttachment(BodyMesh);
+
+	DeathAudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Death Audio effect"));
+	DeathAudioEffect->SetupAttachment(BodyMesh);
+
 	// UStaticMesh * turretMeshTemp = LoadObject<UStaticMesh>(this, *TurretMeshPath);
 	// if(turretMeshTemp)
 	// 	TurretMesh->SetStaticMesh(turretMeshTemp);
@@ -48,9 +54,8 @@ void ATurret::BeginPlay()
 
 	PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 	
-	FTimerHandle _targetingTimerHandle;
+
 	GetWorld()->GetTimerManager().SetTimer(_targetingTimerHandle, this, &ATurret::Targeting, TargetingRate, true, TargetingRate);
-	FTimerHandle _switchTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(_switchTimerHandle, this, &ATurret::SwitchFireMode, SwitchFireModeTimer, true, SwitchFireModeTimer);
 
 	UStaticMesh * turretMeshTemp = LoadObject<UStaticMesh>(this, *TurretMeshPath);
@@ -65,13 +70,12 @@ void ATurret::BeginPlay()
 
 void ATurret::Destroyed()
 {
-	if(CannonPtr)
-		CannonPtr->Destroy();
+	//if(CannonPtr)
+	//	CannonPtr->Destroy();
 }
 
 void ATurret::Targeting()
 {
-	// 
 	if(IsPlayerInRange() && IsPlayerSeen())
 	{
 		RotateToPlayer();
@@ -175,6 +179,9 @@ void ATurret::Die()
 		GetScoreOnDie.Broadcast(GivePoints());
 	if (CannonPtr)
 		CannonPtr->Destroy();
+
+	GetWorldTimerManager().ClearTimer(_switchTimerHandle);
+	GetWorldTimerManager().ClearTimer(_targetingTimerHandle);
 
 	ABasePawn::Die();
 }
