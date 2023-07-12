@@ -55,11 +55,15 @@ protected:
 
 	bool IsPlayerInRange();
 
+	bool IsPlayerSeen();
+
 	bool CanFire();
 
     void Die() override;
  
     void DamageTaked(float DamageValue) override;
 
+	FVector GetEyesPosition();
+	
 
 };

@@ -69,12 +69,13 @@ void ATurret::Destroyed()
 
 void ATurret::Targeting()
 {
-	if(IsPlayerInRange())
+	// 
+	if(IsPlayerInRange() && IsPlayerSeen())
 	{
 		RotateToPlayer();
 	}
 
-	if(CanFire() && CannonPtr && CannonPtr->IsReadyToFire())
+	if(CanFire() && CannonPtr && CannonPtr->IsReadyToFire() && IsPlayerInRange() && IsPlayerSeen())
 	{
 		Fire();
 	}
@@ -87,8 +88,6 @@ void ATurret::RotateToPlayer()
 	targetRotation.Pitch = currRotation.Pitch;
 	targetRotation.Roll = currRotation.Roll;
 	TurretMesh->SetWorldRotation(FMath::Lerp(currRotation, targetRotation, TargetingSpeed));
-
-
 }
 
 bool ATurret::IsPlayerInRange()
@@ -100,6 +99,39 @@ bool ATurret::IsPlayerInRange()
 		return false;
 	
 	return FVector::Distance(PlayerPawn->GetActorLocation(), GetActorLocation()) <= TargetingRange;
+}
+
+bool ATurret::IsPlayerSeen()
+{
+
+	if (!PlayerPawn)
+		PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+
+	if (!PlayerPawn)
+		return false;
+
+	FVector playerPos = PlayerPawn->GetActorLocation();
+	FVector eyesPos = GetEyesPosition();
+
+	FHitResult hitResult;
+	FCollisionQueryParams traceParams =
+		FCollisionQueryParams(FName(TEXT("FireTrace")), true, this);
+
+	traceParams.bTraceComplex = true;
+	traceParams.AddIgnoredActor(this);
+	traceParams.AddIgnoredActor(*Cannon);
+	traceParams.bReturnPhysicalMaterial = false;
+
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, eyesPos, playerPos,
+		ECollisionChannel::ECC_Visibility, traceParams))
+	{
+		if (hitResult.GetActor())
+		{
+			return hitResult.GetActor() == PlayerPawn;
+		}
+	}
+	return false;
+
 }
 
 bool ATurret::CanFire()
@@ -145,6 +177,11 @@ void ATurret::Die()
 void ATurret::DamageTaked(float DamageValue)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Turret %s took damage:%f Health:%f"), *GetName(), DamageValue, HealthComponent->GetHealth());
+}
+
+FVector ATurret::GetEyesPosition()
+{
+	return CannonSetupPoint->GetComponentLocation();
 }
 
 
