@@ -31,6 +31,8 @@ protected:
     float TargetingRate = 0.005f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
     float Accurency = 10;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
+	float SwitchFireModeTimer = 5.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score points")
 	int Points = 5;
@@ -62,6 +64,8 @@ protected:
     void Die() override;
  
     void DamageTaked(float DamageValue) override;
+
+	void SwitchFireMode();
 
 	FVector GetEyesPosition();
 	

@@ -188,6 +188,11 @@ void ACannon::FireSpecial()
 	UE_LOG(LogTemp, Display, TEXT("Number of rounds: %d"), RoundsNumber);
 }
 
+void ACannon::SwitchType()
+{
+	Type = static_cast<ECannonType>(static_cast<uint8>(Type) ^ 1);
+}
+
 void ACannon::AddRounds(int number)
 {
 	if (number > 0) RoundsNumber += number;

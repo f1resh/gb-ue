@@ -50,6 +50,8 @@ void ATurret::BeginPlay()
 	
 	FTimerHandle _targetingTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(_targetingTimerHandle, this, &ATurret::Targeting, TargetingRate, true, TargetingRate);
+	FTimerHandle _switchTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(_switchTimerHandle, this, &ATurret::SwitchFireMode, SwitchFireModeTimer, true, SwitchFireModeTimer);
 
 	UStaticMesh * turretMeshTemp = LoadObject<UStaticMesh>(this, *TurretMeshPath);
 	if(turretMeshTemp)
@@ -171,12 +173,20 @@ void ATurret::Die()
 {
 	if (GetScoreOnDie.IsBound())
 		GetScoreOnDie.Broadcast(GivePoints());
-	Destroy();
+	if (CannonPtr)
+		CannonPtr->Destroy();
+
+	ABasePawn::Die();
 }
 
 void ATurret::DamageTaked(float DamageValue)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Turret %s took damage:%f Health:%f"), *GetName(), DamageValue, HealthComponent->GetHealth());
+}
+
+void ATurret::SwitchFireMode()
+{
+	CannonPtr->SwitchType();
 }
 
 FVector ATurret::GetEyesPosition()
