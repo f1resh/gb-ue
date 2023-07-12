@@ -41,6 +41,12 @@ ATankPawn::ATankPawn()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
+	DeathVisualEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Death effect"));
+	DeathVisualEffect->SetupAttachment(BodyMesh);
+
+	DeathAudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Death Audio effect"));
+	DeathAudioEffect->SetupAttachment(BodyMesh);
+
 }
 
 FVector ATankPawn::GetTurretForwardVector()
@@ -222,10 +228,8 @@ void ATankPawn::Die()
 		Cannon1->Destroy();
 	if (Cannon2)
 		Cannon2->Destroy();
-	if (Cannon)
-		delete Cannon;
 	
-	Destroy();
+	ABasePawn::Die();
 }
 
 void ATankPawn::DamageTaked(float DamageValue)

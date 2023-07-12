@@ -9,6 +9,7 @@ ABasePawn::ABasePawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
 	HealthComponent->OnDie.AddUObject(this, &ABasePawn::Die);
 	HealthComponent->OnDamaged.AddUObject(this, &ABasePawn::DamageTaked);
@@ -24,6 +25,22 @@ void ABasePawn::BeginPlay()
 
 void ABasePawn::Die()
 {
+	if (Cannon)
+		delete Cannon;
+
+	DeathVisualEffect->ActivateSystem();
+	//DeathAudioEffect->Play();
+
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+	UE_LOG(LogTemp, Display, TEXT("Actor is ready to die"));
+
+	FTimerHandle destroyHandler;
+	GetWorld()->GetTimerManager().SetTimer(destroyHandler, this, &ABasePawn::D, 3, false);
+
+}
+
+void ABasePawn::D() {
 	Destroy();
 }
 

@@ -30,7 +30,7 @@ ACannon::ACannon()
 	AudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio effect"));
 	ShootEffect->SetupAttachment(ProjectileSpawnPoint);
 
-	SetActorHiddenInGame(true);
+	//SetActorHiddenInGame(true);
 
 }
 

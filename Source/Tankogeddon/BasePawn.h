@@ -6,6 +6,8 @@
 #include "DamageTaker.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/AudioComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "HealthComponent.h"
 #include "Cannon.h"
 #include "BasePawn.generated.h"
@@ -26,6 +28,12 @@ protected:
 		UHealthComponent* HealthComponent;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 		UBoxComponent* HitCollider;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UParticleSystemComponent* DeathVisualEffect;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UAudioComponent* DeathAudioEffect;
+
 
 	TSubclassOf<ACannon>* CannonClassPtr;
 	ACannon** Cannon;
@@ -52,6 +60,8 @@ protected:
 
 	UFUNCTION()
 		virtual void DamageTaked(float DamageValue);
+
+	void D();
 
 public:	
 	// Called every frame
