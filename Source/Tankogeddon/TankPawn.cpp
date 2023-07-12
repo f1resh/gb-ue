@@ -2,12 +2,12 @@
 
 
 #include "TankPawn.h"
-#include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/SceneComponent.h"
 #include "Camera/CameraComponent.h"
 #include "TankPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Components/ArrowComponent.h"
 //#include "TankAIController.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(TankLog, All, All);
@@ -24,10 +24,12 @@ ATankPawn::ATankPawn()
 
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank turret"));
 	TurretMesh->SetupAttachment(BodyMesh);
-	
+
 	CannonSetupPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
 	CannonSetupPoint->AttachToComponent(TurretMesh, FAttachmentTransformRules::KeepRelativeTransform);
 
+	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
+	HitCollider->SetupAttachment(BodyMesh);
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring arm"));
 	SpringArm->SetupAttachment(BodyMesh);
@@ -39,12 +41,6 @@ ATankPawn::ATankPawn()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
-	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
-	HealthComponent->OnDie.AddUObject(this, &ATankPawn::Die);
-	HealthComponent->OnDamaged.AddUObject(this, &ATankPawn::DamageTaked);
-	
-	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
-	HitCollider->SetupAttachment(BodyMesh);
 }
 
 FVector ATankPawn::GetTurretForwardVector()
@@ -75,9 +71,13 @@ void ATankPawn::InitCannons()
 	params.Owner = this;
 	Cannon1 = GetWorld()->SpawnActor<ACannon>(CannonClass1, params);
 	Cannon1->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Cannon1->OnGetScore.AddUObject(this, &ATankPawn::AddScore);
 	Cannon2 = GetWorld()->SpawnActor<ACannon>(CannonClass2, params);
 	Cannon2->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Cannon2->OnGetScore.AddUObject(this, &ATankPawn::AddScore);
+
 	Cannon = &Cannon1;
+	CannonClassPtr = &CannonClass1;
 }
 
 void ATankPawn::SetupCannon()
@@ -92,6 +92,7 @@ void ATankPawn::SetupCannon()
 	params.Owner = this;
 	(*Cannon) = GetWorld()->SpawnActor<ACannon>(*CannonClassPtr, params);
 	(*Cannon)->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	(*Cannon)->OnGetScore.AddUObject(this, &ATankPawn::AddScore);
 }
 
 void ATankPawn::SetupCannon(TSubclassOf<ACannon> NewCannonClass)
@@ -124,30 +125,15 @@ void ATankPawn::MoveTank(float DeltaTime)
 	SetActorLocation(movePosition, true);
 }
 
-void ATankPawn::Fire()
-{
-	if(Cannon)
-	{
-		(*Cannon)->Fire();
-	}
-}
-
-void ATankPawn::FireSpecial()
-{
-	if (Cannon) {
-		(*Cannon)->FireSpecial();
-	}
-}
-
 void ATankPawn::SwitchCannon()
 {
 	if (Cannon == &Cannon1) {
 		Cannon = &Cannon2;
-		CannonClassPtr = &CannonClass1;
+		CannonClassPtr = &CannonClass2;
 	}
 	else if (Cannon == &Cannon2){
 		Cannon = &Cannon1;
-		CannonClassPtr = &CannonClass2;
+		CannonClassPtr = &CannonClass1;
 	}
 	FString name = (*Cannon)->GetClass()->GetName();
 	UE_LOG(TankLog, Display, TEXT("Switch to cannon: %s"), *name);
@@ -211,7 +197,6 @@ void ATankPawn::SetPatrollingPoints(TArray<ATargetPoint*> NewPatrollingPoints)
 void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 void ATankPawn::AddRoundToCurrentCannon(int number)
@@ -219,11 +204,6 @@ void ATankPawn::AddRoundToCurrentCannon(int number)
 	(*Cannon)->AddRounds(number);
 }
 
-
-void ATankPawn::TakeDamage(FDamageData DamageData)
-{
-	HealthComponent->TakeDamage(DamageData);
-}
 
 TArray<FVector> ATankPawn::GetPatrollingPoints()
 {
@@ -250,5 +230,11 @@ void ATankPawn::Die()
 
 void ATankPawn::DamageTaked(float DamageValue)
 {
-	UE_LOG(TankLog, Warning, TEXT("Tank %s taked damage:%f Health:%f"), *GetName(), DamageValue, HealthComponent->GetHealth());
+	UE_LOG(TankLog, Warning, TEXT("Tank %s took damage:%f Health:%f"), *GetName(), DamageValue, HealthComponent->GetHealth());
+}
+
+void ATankPawn::AddScore(int score)
+{
+	Points += score;
+	GEngine->AddOnScreenDebugMessage(10, 5, FColor::Red, FString::Printf(TEXT("Total score: %d"), Points));
 }

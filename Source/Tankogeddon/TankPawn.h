@@ -2,13 +2,10 @@
 
 #pragma once
 
-#include "Cannon.h"
+
 #include "CoreMinimal.h"
-#include "DamageTaker.h"
-#include "HealthComponent.h"
-#include "Components/BoxComponent.h"
+#include "BasePawn.h"
 #include "Engine/TargetPoint.h"
-#include "GameFramework/Pawn.h"
 #include "TankPawn.generated.h"
 
 class UStaticMeshComponent;
@@ -19,26 +16,16 @@ class ATankPlayerController;
 class ACannon;
 
 UCLASS()
-class TANKOGEDDON_API ATankPawn : public APawn, public IDamageTaker
+class TANKOGEDDON_API ATankPawn : public ABasePawn
 {
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	UStaticMeshComponent* BodyMesh;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	UStaticMeshComponent* TurretMesh;
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	USpringArmComponent * SpringArm;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UCameraComponent * Camera;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UArrowComponent * CannonSetupPoint;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UHealthComponent * HealthComponent;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UBoxComponent * HitCollider; 
-
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float MoveSpeed = 100;
@@ -69,15 +56,14 @@ protected:
 		TSubclassOf<ACannon> CannonClass2;
 	ACannon* Cannon2;
 
-	TSubclassOf<ACannon>* CannonClassPtr;
-	ACannon** Cannon;
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Patrol points" , Meta = (MakeEditWidget = true))
 	TArray<ATargetPoint*> PatrollingPoints;
 	// int32 _currentPatrolPointIndex = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Accurency")
     float MovementAccurency = 50;
+
+	int Points = 0;
 
 public:
 	// Sets default values for this pawn's properties
@@ -93,15 +79,7 @@ public:
 	void MoveTank(float DeltaTime);
 
 	UFUNCTION()
-	void Fire();
-	UFUNCTION()
-	void FireSpecial();
-	UFUNCTION()
 	void SwitchCannon();
-
-
-	UFUNCTION()
-	void TakeDamage(FDamageData DamageData);
 
 	UFUNCTION()
 	TArray<FVector> GetPatrollingPoints();
@@ -123,12 +101,11 @@ protected:
 	void InitCannons();
 	void SetupCannon();
 
-	UFUNCTION()
-	void Die();
- 
-	UFUNCTION()
-    void DamageTaked(float DamageValue);
+	void AddScore(int);
 
+	void Die() override;
+
+	void DamageTaked(float DamageValue) override;
 
 public:	
 	// Called every frame

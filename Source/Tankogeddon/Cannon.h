@@ -20,6 +20,8 @@ UCLASS()
 class TANKOGEDDON_API ACannon : public AActor
 {
 	GENERATED_BODY()
+
+	DECLARE_EVENT_OneParam(ACannon, FOnGetScore, int)
 protected:
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
     UStaticMeshComponent* Mesh;
@@ -73,7 +75,7 @@ public:
 
 	bool IsReadyToFire();
 
-	
+	FOnGetScore OnGetScore;
 protected:
     virtual void BeginPlay() override;
 
@@ -85,5 +87,6 @@ private:
 
 	int burstCount = 0;
 
+	void SendScore(int);
 
 };

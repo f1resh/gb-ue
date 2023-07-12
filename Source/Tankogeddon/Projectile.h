@@ -11,6 +11,7 @@ class TANKOGEDDON_API AProjectile : public AActor
 {
 	GENERATED_BODY()
 	
+	DECLARE_EVENT_OneParam(AProjectile, FOnGetScore, int)
 protected:
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
     UStaticMeshComponent* Mesh;
@@ -33,10 +34,14 @@ public:
 
 	virtual void Start();
 
+	FOnGetScore OnGetScore;
+
 protected:
     UFUNCTION()
     void OnMeshOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
     virtual void Move();
+
+	void GiveScore(int);
 };

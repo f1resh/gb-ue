@@ -4,6 +4,7 @@
 #include "Projectile.h"
 
 #include "DamageTaker.h"
+#include "Scorable.h"
 #include "Components/StaticMeshComponent.h"
 #include "TimerManager.h"
 
@@ -41,7 +42,12 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 			damageData.Instigator = owner;
 			damageData.DamageMaker = this;
 
+			IScorable* scorable = Cast<IScorable>(OtherActor);
+			if (scorable) {
+				scorable->GetScoreOnDie.AddUObject(this, &AProjectile::GiveScore);
+			}
 			damageTakerActor->TakeDamage(damageData);
+
 		}
 		else
 		{
@@ -72,6 +78,13 @@ void AProjectile::Move()
 {
 	FVector nextPosition = GetActorLocation() + GetActorForwardVector() * MoveSpeed * MoveRate;
 	SetActorLocation(nextPosition);
+}
+
+void AProjectile::GiveScore(int score)
+{
+	if (OnGetScore.IsBound()) {
+		OnGetScore.Broadcast(score);
+	}
 }
 
 

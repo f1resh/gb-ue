@@ -2,20 +2,17 @@
 
 
 #include "Turret.h"
-#include "TankPlayerController.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Cannon.h"
-#include "TimerManager.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/ArrowComponent.h"
-#include "Components/BoxComponent.h"
-//#include "HealthComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "TimerManager.h"
 
 
 
 // Sets default values
 ATurret::ATurret()
 {
+	PrimaryActorTick.bCanEverTick = false;
+
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turret body"));
 	RootComponent = BodyMesh;
 
@@ -26,11 +23,7 @@ ATurret::ATurret()
 	CannonSetupPoint->AttachToComponent(TurretMesh, FAttachmentTransformRules::KeepRelativeTransform);
 
 	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
-	HitCollider->SetupAttachment(TurretMesh);
-	
-	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
-	HealthComponent->OnDie.AddUObject(this, &ATurret::Die);
-	HealthComponent->OnDamaged.AddUObject(this, &ATurret::DamageTaked);
+	HitCollider->SetupAttachment(BodyMesh);
 
 	// UStaticMesh * turretMeshTemp = LoadObject<UStaticMesh>(this, *TurretMeshPath);
 	// if(turretMeshTemp)
@@ -48,8 +41,10 @@ void ATurret::BeginPlay()
 
 	FActorSpawnParameters params;
 	params.Owner = this;
-	Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, params);
-	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	CannonPtr = GetWorld()->SpawnActor<ACannon>(CannonClass, params);
+	CannonPtr->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Cannon = &CannonPtr;
+
 
 	PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 	
@@ -68,8 +63,8 @@ void ATurret::BeginPlay()
 
 void ATurret::Destroyed()
 {
-	if(Cannon)
-		Cannon->Destroy();
+	if(CannonPtr)
+		CannonPtr->Destroy();
 }
 
 void ATurret::Targeting()
@@ -79,7 +74,7 @@ void ATurret::Targeting()
 		RotateToPlayer();
 	}
 
-	if(CanFire() && Cannon && Cannon->IsReadyToFire())
+	if(CanFire() && CannonPtr && CannonPtr->IsReadyToFire())
 	{
 		Fire();
 	}
@@ -122,16 +117,9 @@ bool ATurret::CanFire()
 	return aimAngle <= Accurency;
 }
 
-void ATurret::Fire()
+int ATurret::GivePoints()
 {
-	if(Cannon)
-		Cannon->Fire();
-}
-
-void ATurret::TakeDamage(FDamageData DamageData)
-{
-	HealthComponent->TakeDamage(DamageData);
-	//UE_LOG(LogTemp, Warning, TEXT("Turret %s taked damage:%f "), *GetName(), DamageData.DamageValue);
+	return Points;
 }
 
 void ATurret::PostInitializeComponents()
@@ -149,12 +137,14 @@ void ATurret::PostInitializeComponents()
 
 void ATurret::Die()
 {
+	if (GetScoreOnDie.IsBound())
+		GetScoreOnDie.Broadcast(GivePoints());
 	Destroy();
 }
 
 void ATurret::DamageTaked(float DamageValue)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Turret %s taked damage:%f Health:%f"), *GetName(), DamageValue, HealthComponent->GetHealth());
+	UE_LOG(LogTemp, Warning, TEXT("Turret %s took damage:%f Health:%f"), *GetName(), DamageValue, HealthComponent->GetHealth());
 }
 
 
