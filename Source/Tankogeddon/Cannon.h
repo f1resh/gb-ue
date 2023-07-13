@@ -71,6 +71,8 @@ public:
 	void Fire();
 	void FireSpecial();
 
+	void SwitchType();
+
 	void AddRounds(int);
 
 	bool IsReadyToFire();

@@ -30,6 +30,8 @@ ACannon::ACannon()
 	AudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio effect"));
 	ShootEffect->SetupAttachment(ProjectileSpawnPoint);
 
+	SetActorHiddenInGame(true);
+
 }
 
 void ACannon::Fire()
@@ -184,6 +186,11 @@ void ACannon::FireSpecial()
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ACannon::Reload, 1 / FireRate, false);
 	RoundsNumber--;
 	UE_LOG(LogTemp, Display, TEXT("Number of rounds: %d"), RoundsNumber);
+}
+
+void ACannon::SwitchType()
+{
+	Type = static_cast<ECannonType>(static_cast<uint8>(Type) ^ 1);
 }
 
 void ACannon::AddRounds(int number)
