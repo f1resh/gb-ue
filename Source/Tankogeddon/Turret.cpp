@@ -76,7 +76,6 @@ void ATurret::Targeting()
 	{
 		RotateToPlayer();
 	}
-
 	if(CanFire() && CannonPtr && CannonPtr->IsReadyToFire() && IsPlayerInRange() && IsPlayerSeen())
 	{
 		Fire();
@@ -144,9 +143,12 @@ bool ATurret::CanFire()
 	if(!PlayerPawn)
 		return false;
 	
-	FVector targetingDir = TurretMesh->GetForwardVector();
+	FVector turretForwardVector = TurretMesh->GetForwardVector();
+	FVector targetingDir(turretForwardVector.X, turretForwardVector.Y, 0);
 	FVector dirToPlayer = PlayerPawn->GetActorLocation() - GetActorLocation();
+
 	dirToPlayer.Normalize();
+	targetingDir.Normalize();
 	float aimAngle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(targetingDir, dirToPlayer)));
 	return aimAngle <= Accurency;
 }
