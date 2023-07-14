@@ -75,7 +75,9 @@ void ATurret::Targeting()
 	if(IsPlayerInRange() && IsPlayerSeen())
 	{
 		RotateToPlayer();
+		if (BallisticTargeting) ElevateCannon();
 	}
+
 	if(CanFire() && CannonPtr && CannonPtr->IsReadyToFire() && IsPlayerInRange() && IsPlayerSeen())
 	{
 		Fire();
@@ -89,6 +91,21 @@ void ATurret::RotateToPlayer()
 	targetRotation.Pitch = currRotation.Pitch;
 	targetRotation.Roll = currRotation.Roll;
 	TurretMesh->SetWorldRotation(FMath::Lerp(currRotation, targetRotation, TargetingSpeed));
+}
+
+void ATurret::ElevateCannon()
+{
+	//demo
+	float grav = 9.81f;
+	float ProjectileSpeed = 100;
+	FRotator currRotation = TurretMesh->GetComponentRotation();
+	float Distance = (PlayerPawn->GetActorLocation() - TurretMesh->GetComponentLocation()).Size();
+	float sin2A = grav * Distance / ProjectileSpeed / ProjectileSpeed;
+	sin2A = sin2A >= 1 ? 1 : sin2A;
+	float elevAngle = FMath::RadiansToDegrees(asinf(sin2A)) / 2;
+	FRotator targetRotation(elevAngle, currRotation.Roll, currRotation.Yaw);
+	TurretMesh->SetWorldRotation(FMath::Lerp(currRotation, targetRotation, TargetingSpeed));
+	UE_LOG(LogTemp, Warning, TEXT("Turret %s cannon elevation:%f"), *GetName(), currRotation.Pitch);
 }
 
 bool ATurret::IsPlayerInRange()

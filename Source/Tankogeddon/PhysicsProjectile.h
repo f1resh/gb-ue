@@ -25,8 +25,7 @@ protected:
 	UParticleSystemComponent * TrailEffect;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	float MoveAccurency = 10;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Explode")
-	float ExplodeRadius = 200;
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Trajectory")
 	float TrajectorySimulationMaxTime = 50;
@@ -50,6 +49,4 @@ public:
 
 protected:
     virtual void Move() override;
-
-	void Explode();
 };
