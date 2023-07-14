@@ -16,13 +16,15 @@ void UHealthComponent::TakeDamage(FDamageData DamageData)
 	float takedDamageValue = DamageData.DamageValue; 
 	CurrentHealth -= takedDamageValue;
 
-	if(CurrentHealth <= 0)
+	if(CurrentHealth <= 0 && !IsDead)
 	{
 		//IScorable* scorable = Cast<IScorable>(DamageData.Instigator);
 		//if (scorable)
 		//	DamageData.Instigator
+		IsDead = true;
 		if(OnDie.IsBound())
 			OnDie.Broadcast();
+		
 	}
 	else
 	{

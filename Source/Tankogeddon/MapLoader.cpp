@@ -25,7 +25,7 @@ AMapLoader::AMapLoader()
 	
 	TriggerCollider->OnComponentBeginOverlap.AddDynamic(this, &AMapLoader::OnTriggerOverlapBegin);
 
-	SetActiveLights();
+	//SetActiveLights();
 }
 
 void AMapLoader::SetIsActivated(bool NewIsActivated)
