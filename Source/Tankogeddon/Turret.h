@@ -34,6 +34,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
 	float SwitchFireModeTimer = 5.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
+	bool BallisticTargeting = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score points")
 	int Points = 5;
 
@@ -54,6 +57,8 @@ protected:
 	void Targeting();
 
 	void RotateToPlayer();
+
+	void ElevateCannon();
 
 	bool IsPlayerInRange();
 

@@ -75,6 +75,7 @@ void ATurret::Targeting()
 	if(IsPlayerInRange() && IsPlayerSeen())
 	{
 		RotateToPlayer();
+		if (BallisticTargeting) ElevateCannon();
 	}
 
 	if(CanFire() && CannonPtr && CannonPtr->IsReadyToFire() && IsPlayerInRange() && IsPlayerSeen())
@@ -90,6 +91,21 @@ void ATurret::RotateToPlayer()
 	targetRotation.Pitch = currRotation.Pitch;
 	targetRotation.Roll = currRotation.Roll;
 	TurretMesh->SetWorldRotation(FMath::Lerp(currRotation, targetRotation, TargetingSpeed));
+}
+
+void ATurret::ElevateCannon()
+{
+	//demo
+	float grav = 9.81f;
+	float ProjectileSpeed = 100;
+	FRotator currRotation = TurretMesh->GetComponentRotation();
+	float Distance = (PlayerPawn->GetActorLocation() - TurretMesh->GetComponentLocation()).Size();
+	float sin2A = grav * Distance / ProjectileSpeed / ProjectileSpeed;
+	sin2A = sin2A >= 1 ? 1 : sin2A;
+	float elevAngle = FMath::RadiansToDegrees(asinf(sin2A)) / 2;
+	FRotator targetRotation(elevAngle, currRotation.Roll, currRotation.Yaw);
+	TurretMesh->SetWorldRotation(FMath::Lerp(currRotation, targetRotation, TargetingSpeed));
+	UE_LOG(LogTemp, Warning, TEXT("Turret %s cannon elevation:%f"), *GetName(), currRotation.Pitch);
 }
 
 bool ATurret::IsPlayerInRange()
@@ -144,9 +160,12 @@ bool ATurret::CanFire()
 	if(!PlayerPawn)
 		return false;
 	
-	FVector targetingDir = TurretMesh->GetForwardVector();
+	FVector turretForwardVector = TurretMesh->GetForwardVector();
+	FVector targetingDir(turretForwardVector.X, turretForwardVector.Y, 0);
 	FVector dirToPlayer = PlayerPawn->GetActorLocation() - GetActorLocation();
+
 	dirToPlayer.Normalize();
+	targetingDir.Normalize();
 	float aimAngle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(targetingDir, dirToPlayer)));
 	return aimAngle <= Accurency;
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DamageTaker.h"
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
@@ -27,6 +28,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
 	float PushForce = 100000;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Explode")
+	bool EnableExplode = false;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Explode")
+	float ExplodeRadius = 200;
+
 	FTimerHandle MovementTimerHandle;
 	
 public:	
@@ -43,5 +49,11 @@ protected:
 	UFUNCTION()
     virtual void Move();
 
+	UFUNCTION()
+	virtual void Explode();
+
 	void GiveScore(int);
+
+	void InflictDamage(IDamageTaker*);
+	void PushObject(AActor*);
 };
