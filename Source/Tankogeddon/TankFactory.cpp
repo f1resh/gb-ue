@@ -19,6 +19,16 @@ ATankFactory::ATankFactory()
 	BuildingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Building Mesh"));
 	BuildingMesh->SetupAttachment(sceneComp);
 
+	DestroyedMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Destroyed Building Mesh"));
+	DestroyedMesh->SetupAttachment(sceneComp);
+	DestroyedMesh->SetHiddenInGame(true);
+
+	DestroyEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Destroy effect"));
+	DestroyEffect->SetupAttachment(BuildingMesh);
+
+	DestroyAudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Destroy Audio effect"));
+	DestroyAudioEffect->SetupAttachment(BuildingMesh);
+
 	TankSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
 	TankSpawnPoint->AttachToComponent(sceneComp, FAttachmentTransformRules::KeepRelativeTransform);
 
@@ -36,8 +46,7 @@ void ATankFactory::BeginPlay()
 	if(LinkedMapLoader)
 		LinkedMapLoader->SetIsActivated(false);
 
-	FTimerHandle _targetingTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(_targetingTimerHandle, this, &ATankFactory::SpawnNewTank, SpawnTankRate, true, SpawnTankRate);
+	GetWorld()->GetTimerManager().SetTimer(_spawnTimerHandle, this, &ATankFactory::SpawnController, SpawnTankRate, true, SpawnTankRate);
 }
 
 void ATankFactory::TakeDamage(FDamageData DamageData)
@@ -49,7 +58,11 @@ void ATankFactory::Die()
 {
 	if(LinkedMapLoader)
 		LinkedMapLoader->SetIsActivated(true);
-	Destroy();
+	DestroyEffect->ActivateSystem();
+	DestroyAudioEffect->Play();
+	BuildingMesh->SetHiddenInGame(true);
+	DestroyedMesh->SetHiddenInGame(false);
+	//Destroy();
 }
 
 void ATankFactory::DamageTaked(float DamageValue)
@@ -65,6 +78,12 @@ void ATankFactory::SpawnNewTank()
 	newTank->SetPatrollingPoints(TankWayPoints);
 	//
 	UGameplayStatics::FinishSpawningActor(newTank, spawnTransform);
+}
+
+void ATankFactory::SpawnController()
+{
+	if (SpawnTankCounter++ < SpawnTankNumber) SpawnNewTank();
+	else GetWorldTimerManager().ClearTimer(_spawnTimerHandle);
 }
 
 
